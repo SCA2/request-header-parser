@@ -5,34 +5,48 @@ var expect = chai.expect;
 
 chai.use(chaiHttp);
 
-describe('timestamp microservice', () => {
-  describe('/GET', () => {
-    it('should return null with no query', (done) => {
+describe('request header parser microservice', () => {
+  describe('/api/whoami', () => {
+    it('should respond with status 200', (done) => {
       chai.request(server)
-      .get('/')
+      .get('/api/whoami')
+      .set('user-agent', 'Mozilla/5.0 (X11; Linux x86_64)') 
+      .set('accept-language', 'en-US')
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.text).to.equal("{\"unix\":null,\"natural\":null}");
         done();
       })
     })
 
-    it('should convert a unix timestamp', (done) => {
+    it('should return ip address', (done) => {
       chai.request(server)
-      .get('/1496041200')
+      .get('/api/whoami')
+      .set('user-agent', 'Mozilla/5.0 (X11; Linux x86_64)') 
+      .set('accept-language', 'en-US')
       .end((err, res) => {
-        expect(res.status).to.equal(200);
-        expect(res.text).to.equal("{\"unix\":\"1496041200\",\"natural\":\"May 29, 2017\"}");
+        expect(JSON.parse(res.text).ipaddress).to.equal("127.0.0.1");
         done();
       })
     })
 
-    it('should convert a natural date', (done) => {
+    it('should return language', (done) => {
       chai.request(server)
-      .get('/May 29, 2017')
+      .get('/api/whoami')
+      .set('user-agent', 'Mozilla/5.0 (X11; Linux x86_64)') 
+      .set('accept-language', 'en-US')
       .end((err, res) => {
-        expect(res.status).to.equal(200);
-        expect(res.text).to.equal("{\"unix\":\"1496041200\",\"natural\":\"May 29, 2017\"}");
+        expect(JSON.parse(res.text).language).to.equal("en-US");
+        done();
+      })
+    })
+
+    it('should return OS', (done) => {
+      chai.request(server)
+      .get('/api/whoami')
+      .set('user-agent', 'Mozilla/5.0 (X11; Linux x86_64)') 
+      .set('accept-language', 'en-US')
+      .end((err, res) => {
+        expect(JSON.parse(res.text).software).to.equal("Linux 64");
         done();
       })
     })
